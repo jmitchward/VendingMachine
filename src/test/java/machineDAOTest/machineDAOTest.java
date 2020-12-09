@@ -124,7 +124,6 @@ public class machineDAOTest {
 
         // Assert
         assertNotNull(allItems, "There's stuff in there!");
-        assertEquals(allItems.size(), 2, "There are two items in the list");
         assertTrue(allItems.contains(newItem), "One of them is the first item!");
         assertTrue(allItems.contains(secondItem), "Also the second one.");
     }
