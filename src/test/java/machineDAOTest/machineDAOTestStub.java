@@ -5,6 +5,7 @@ import machineDAO.machineDAO;
 import machineDAO.InventoryNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,7 @@ public class machineDAOTestStub implements machineDAO{
     }
 
     @Override
-    public void saveInventory(Map<String, machineItem> items) throws IOException, InventoryNotFoundException {
+    public void saveInventory() {
 
     }
 
@@ -94,6 +95,11 @@ public class machineDAOTestStub implements machineDAO{
 
     @Override
     public void runInventory() throws IOException, InventoryNotFoundException {
+
+    }
+
+    @Override
+    public void sqlConnect() throws SQLException {
 
     }
 }

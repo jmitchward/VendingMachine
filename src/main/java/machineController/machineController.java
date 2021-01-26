@@ -10,6 +10,7 @@ import machineService.RepeatIdException;
 import machineService.BlankValueException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 public class machineController {
     // The controller interacts with two aspects of the program, the view and the service layer
@@ -22,7 +23,7 @@ public class machineController {
         this.view = view;
     }
 
-    public void programStart() throws NoItemInventoryException, InsufficientFundsException, IOException, InventoryNotFoundException, BlankValueException, RepeatIdException {
+    public void programStart() throws NoItemInventoryException, InsufficientFundsException, IOException, InventoryNotFoundException, BlankValueException, RepeatIdException, SQLException {
         view.displayMoney(service.checkTotal());
         // Program starts with the menu
         String menuSelect = view.getMenu(service.displayItems());
@@ -48,7 +49,7 @@ public class machineController {
         programStart();
     }
 
-    public void purchaseChain(String itemId) throws NoItemInventoryException, InsufficientFundsException, BlankValueException, RepeatIdException, InventoryNotFoundException, IOException {
+    public void purchaseChain(String itemId) throws NoItemInventoryException, InsufficientFundsException, BlankValueException, RepeatIdException, InventoryNotFoundException, IOException, SQLException {
         view.vendItem(service.getItem(itemId).getName());
         // The requested item will need to be acquired.
         try {
@@ -65,7 +66,7 @@ public class machineController {
         service.setTotal(userTotal);
     }
 
-    public void exitChain() throws IOException, InventoryNotFoundException {
+    public void exitChain() throws IOException, InventoryNotFoundException, SQLException {
         view.displayExit();
         service.exitCascade();
         System.exit(0);

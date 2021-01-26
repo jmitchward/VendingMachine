@@ -3,6 +3,7 @@ package machineDAO;
 import machineDTO.machineItem;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,10 +20,11 @@ public interface machineDAO {
     // Returns the inventory.
     int checkItem(String itemId);
     // Check the current stock of an item.
-    void saveInventory(Map<String, machineItem> items) throws IOException, InventoryNotFoundException;
+    void saveInventory() throws SQLException;
     // Called at program exit
-    void loadInventory() throws InventoryNotFoundException;
+    void loadInventory() throws InventoryNotFoundException, SQLException;
     // Called at program start
-    void runInventory() throws IOException, InventoryNotFoundException;
+    void runInventory() throws IOException, InventoryNotFoundException, SQLException;
+    void sqlConnect() throws SQLException, IllegalAccessException, InstantiationException, ClassNotFoundException;
 
 }

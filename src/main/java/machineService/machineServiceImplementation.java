@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,9 +25,10 @@ public class machineServiceImplementation implements machineService{
     private final BigDecimal nickel = new BigDecimal("0.05");
     private final BigDecimal penny = new BigDecimal("0.01");
 
-    public machineServiceImplementation(machineDAO dao, machineAuditDAO auditor) {
+    public machineServiceImplementation(machineDAO dao, machineAuditDAO auditor) throws SQLException, IllegalAccessException, ClassNotFoundException, InstantiationException {
         this.dao = dao;
         this.auditor = auditor;
+        this.dao.sqlConnect();
     }
     @Override
     public machineItem purchaseItem(String itemId) throws InsufficientFundsException, NoItemInventoryException, IOException, InventoryNotFoundException {
@@ -133,7 +135,7 @@ public class machineServiceImplementation implements machineService{
     }
 
     @Override
-    public void exitCascade() throws IOException, InventoryNotFoundException {
+    public void exitCascade() throws IOException, InventoryNotFoundException, SQLException {
         dao.runInventory();
     }
 }

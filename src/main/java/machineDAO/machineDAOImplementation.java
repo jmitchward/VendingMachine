@@ -4,22 +4,25 @@ import machineDTO.machineItem;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 public class machineDAOImplementation implements machineDAO {
 
     private final Map<String, machineItem> inventory = new HashMap<>();
+    machineSQL sqlConnector = new machineSQL();
     private final String INVENTORY;
     public static final String DELIMITER = "::";
     public String nextId = "000";
 
-    public machineDAOImplementation() throws InventoryNotFoundException {
+    public machineDAOImplementation() throws InventoryNotFoundException, SQLException, IllegalAccessException, ClassNotFoundException, InstantiationException {
         INVENTORY = "inventory_file.txt";
         loadInventory();
         // No parameter constructor, production use.
     }
 
-    public machineDAOImplementation(String newFile) {
+    public machineDAOImplementation(String newFile) throws SQLException, IllegalAccessException, ClassNotFoundException, InstantiationException {
         INVENTORY = newFile;
         // Overloaded constructor, testing use.
     }
@@ -63,63 +66,85 @@ public class machineDAOImplementation implements machineDAO {
     }
 
     @Override
-    public void runInventory() throws IOException, InventoryNotFoundException {
-        saveInventory(inventory);
+    public void runInventory() throws SQLException {
+        saveInventory();
     }
 
+//    @Override
+//    public void saveInventory(Map<String, machineItem> items) throws InventoryNotFoundException, IOException {
+//        PrintWriter saver;
+//        // Declare file writing object.
+//
+//        try {
+//            saver = new PrintWriter(new FileWriter(INVENTORY));
+//            // Try to implement file writing object.
+//        } catch (FileNotFoundException e) {
+//            throw new InventoryNotFoundException("Could not load inventory.");
+//            // If the file doesn't exist, throw custom exception.
+//        }
+//
+//        for (Map.Entry<String, machineItem> thisItem : items.entrySet()) {
+//            // For each item in the received map object.
+//            saver.println(marshallForth(thisItem.getValue()));
+//            // Pass item to the marshalling function, formatting it for storage.
+//        }
+//
+//        saver.close();
+//        // Close the saver.
+//    }
+
     @Override
-    public void saveInventory(Map<String, machineItem> items) throws InventoryNotFoundException, IOException {
-        PrintWriter saver;
-        // Declare file writing object.
-
-        try {
-            saver = new PrintWriter(new FileWriter(INVENTORY));
-            // Try to implement file writing object.
-        } catch (FileNotFoundException e) {
-            throw new InventoryNotFoundException("Could not load inventory.");
-            // If the file doesn't exist, throw custom exception.
+    public void saveInventory() throws SQLException {
+        for (machineItem item : inventory.values()) {
+            String query = sqlConnector.updateItem(item.getItemId(), item.getStock());
+            sqlConnector.executeUpdate(query);
         }
 
-        for (Map.Entry<String, machineItem> thisItem : items.entrySet()) {
-            // For each item in the received map object.
-            saver.println(marshallForth(thisItem.getValue()));
-            // Pass item to the marshalling function, formatting it for storage.
-        }
-
-        saver.close();
-        // Close the saver.
     }
 
+//    @Override
+//    public void loadInventory() throws InventoryNotFoundException{
+//        Scanner loader;
+//        // Declare file reading object.
+//
+//        try {
+//            loader = new Scanner(new BufferedReader(new FileReader(INVENTORY)));
+//            // Try to implement file reading object.
+//        } catch (FileNotFoundException e) {
+//            throw new InventoryNotFoundException("Could not load inventory.");
+//            // If the file doesn't exist, throw custom exception.
+//        }
+//
+//        String thisLine;
+//        // Declare temporary string variable.
+//        machineItem thisItem;
+//        // Declare temporary object variable.
+//
+//        while (loader.hasNextLine()) {
+//            // While there are lines in the file.
+//            thisLine = loader.nextLine();
+//            // Put them in the string variable.
+//            thisItem = unmarshallItems(thisLine);
+//            // Pass the string variable into the unmarshalling function, returning it as a machineItem object.
+//            inventory.put(thisItem.getItemId(), thisItem);
+//            // Repopulate the Map with machineItem objects from the file.
+//        }
+//
+//        loader.close();
+//        // Close the loader.
+//    }
+
     @Override
-    public void loadInventory() throws InventoryNotFoundException{
-        Scanner loader;
-        // Declare file reading object.
-
-        try {
-            loader = new Scanner(new BufferedReader(new FileReader(INVENTORY)));
-            // Try to implement file reading object.
-        } catch (FileNotFoundException e) {
-            throw new InventoryNotFoundException("Could not load inventory.");
-            // If the file doesn't exist, throw custom exception.
-        }
-
-        String thisLine;
-        // Declare temporary string variable.
-        machineItem thisItem;
-        // Declare temporary object variable.
-
-        while (loader.hasNextLine()) {
-            // While there are lines in the file.
-            thisLine = loader.nextLine();
-            // Put them in the string variable.
-            thisItem = unmarshallItems(thisLine);
-            // Pass the string variable into the unmarshalling function, returning it as a machineItem object.
+    public void loadInventory() throws SQLException {
+        ResultSet dbInventory = sqlConnector.executeStmt(sqlConnector.getAllItems());
+        while (dbInventory.next()) {
+            String itemId = dbInventory.getString("itemId");
+            String itemName = dbInventory.getString("itemName");
+            BigDecimal itemCost = dbInventory.getBigDecimal("itemCost");
+            int itemStock = dbInventory.getInt("itemStock");
+            machineItem thisItem = new machineItem(itemId, itemName, itemCost, itemStock);
             inventory.put(thisItem.getItemId(), thisItem);
-            // Repopulate the Map with machineItem objects from the file.
         }
-
-        loader.close();
-        // Close the loader.
     }
 
     private String marshallForth(machineItem item) {
@@ -154,5 +179,10 @@ public class machineDAOImplementation implements machineDAO {
         // Using the object constructor, create a machineItem object
         return fileItem;
         // Return this object to the load inventory method.
+    }
+
+    @Override
+    public void sqlConnect() throws SQLException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+        sqlConnector.getConnection();
     }
 }

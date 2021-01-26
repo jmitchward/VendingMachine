@@ -5,6 +5,7 @@ import machineDTO.machineItem;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
 
 public interface machineService {
@@ -22,5 +23,5 @@ public interface machineService {
     void setTotal(BigDecimal total);
     List<BigDecimal> returnChange();
     // Used to calculate the amount of change returned to the customer. This is in the service layer as it contains logic.
-    void exitCascade() throws IOException, InventoryNotFoundException;
+    void exitCascade() throws IOException, InventoryNotFoundException, SQLException;
 }
